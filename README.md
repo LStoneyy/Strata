@@ -23,6 +23,32 @@
 
 <p align="center"><sub><b>English</b> · <a href="docs/lang/README.zh-CN.md">简体中文</a> · <a href="docs/lang/README.ja.md">日本語</a> · <a href="docs/lang/README.de.md">Deutsch</a> · <a href="docs/lang/README.fr.md">Français</a> · <a href="docs/lang/README.es.md">Español</a> · <a href="docs/lang/README.pt-BR.md">Português</a> · <a href="docs/lang/README.pl.md">Polski</a></sub></p>
 
+> [!NOTE]
+> **This fork: Strata on two AMD cards with 24 GB of VRAM and 14 GiB of RAM.**
+> A fork of [Niko1221/Strata](https://github.com/Niko1221/Strata) that serves the
+> [Qwen3.8-Flash-Next Coder IQ1_M](docs/MODELS.md#coder) around the clock on a home server that upstream's setup
+> does not cover:
+>
+> - **Hardware:** RX 9060 XT 16 GB (gfx1200, RDNA4, main) + RX 5500 XT 8 GB (gfx1012, RDNA1, helper) as a layer split,
+>   Ryzen 9 5950X, 14 GiB of RAM, one NVMe SSD, Ubuntu 26.04 with ROCm 7.1 from the Ubuntu packages.
+> - **Memory tiers:** ~14 GiB expert cache in VRAM → 6 GiB page-locked RAM for the next-hottest experts → the rest of
+>   the experts and the n-gram table read from the SSD with direct I/O.
+> - **Service:** 128K context with int8 KV, OpenAI/Anthropic-compatible API on port 8012, a systemd unit that takes
+>   turns with the llama.cpp services the box ran before.
+> - **Measured:** chat/code ~22–26 tok/s, prompts ~190–335 tok/s, an 88K-token needle test passes, ≥ 1.1 GiB of VRAM
+>   left on each card at peak, stress runs without hangs.
+>
+> **What differs from upstream:**
+>
+> - `setup.py`: the opt-in `STRATA_EXPERIMENTAL_GFX1012=1` accepts the RDNA1 card (its engine is built by hand).
+> - [`deploy/aegis/`](deploy/aegis/README.md): a rocBLAS build for gfx1012 + gfx1200 with merged Tensile code objects
+>   (Ubuntu's rocBLAS has no gfx1012 kernels), the engine build, the run config, the systemd unit, a smoke-test harness
+>   with a VRAM/GTT/RAM watchdog and a hipBLAS probe.
+> - The required settings and why each is needed: [deploy/aegis/README.md](deploy/aegis/README.md); measurements:
+>   [deploy/aegis/FINDINGS.md](deploy/aegis/FINDINGS.md); the build plan: [PLAN.md](PLAN.md) (all three in German).
+>
+> Everything below is upstream's README.
+
 **Free, open source, and yours to run.** Use Strata on your desktop or with your favorite coding tools. No account needed.
 
 ## Models

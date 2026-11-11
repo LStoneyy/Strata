@@ -4279,8 +4279,13 @@ GFX1150_OPT_IN = os.environ.get("STRATA_EXPERIMENTAL_GFX1150") == "1"
 # The Instinct MI50 / MI60 / Radeon VII (gfx906) also runs, from a source build on a system ROCm 6.x (the last line
 # with gfx906 libraries; AMD's wheels hold 7.x families only): setup lists the card but does not drive that build
 # (docs/AMD_HIP.md, the gfx906 section).
+# STRATA_EXPERIMENTAL_GFX1012=1 (opt-in, unvalidated): the RX 5500 XT (RDNA1, gfx1012, discrete) is taken as a usable card,
+# e.g. as the helper of a layer split.  Setup does not build its engine (docs/OLDER_GPUS.md: by hand, with a rocBLAS that
+# has gfx1012 kernels on the run config's lib_dirs; see deploy/aegis/).  Unset: unchanged.
+GFX1012_OPT_IN = os.environ.get("STRATA_EXPERIMENTAL_GFX1012") == "1"
 AMD_ARCHS = ("gfx1100", "gfx1101", "gfx1102", "gfx1200", "gfx1201", "gfx1030", "gfx1031", "gfx1032", "gfx1151", "gfx906") \
-            + (("gfx1103",) if GFX1103_OPT_IN else ()) + (("gfx1150",) if GFX1150_OPT_IN else ())
+            + (("gfx1103",) if GFX1103_OPT_IN else ()) + (("gfx1150",) if GFX1150_OPT_IN else ()) \
+            + (("gfx1012",) if GFX1012_OPT_IN else ())
 # The exact (bit-identical) speed switches the engine turns on by default on gfx1151 (src/core/arch_defaults.cpp), less
 # STRATA_HCD_EXACT: that one copies the gfx1151 hipBLASLt table's solutions 1176 / 1177, and the gfx1103 table
 # (tools/hip/gfx1103-hipblaslt-100401.txt) picks others, so it would only report that it cannot run.  A gfx1103 install

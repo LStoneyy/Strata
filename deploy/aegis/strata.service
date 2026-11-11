@@ -1,0 +1,32 @@
+# Strata on aegis: Qwen3.8-Flash-Next Coder IQ1_M, layer split RX 9060 XT (main) + RX 5500 XT (helper),
+# experts in VRAM (~15 GiB) + RAM (6 GiB, page-locked) + SSD (rest, direct I/O). See deploy/aegis/README.md.
+#
+# Install:  sudo cp deploy/aegis/strata.service /etc/systemd/system/ && sudo systemctl daemon-reload
+#           sudo systemctl enable --now strata
+# Switch back to llama.cpp:  sudo systemctl disable --now strata && sudo systemctl enable --now llama-server kallilex-server
+[Unit]
+Description=Strata (Qwen3.8-Flash-Next Coder IQ1_M, 9060 XT + 5500 XT)
+After=network-online.target
+Wants=network-online.target
+# Same port (8012) and the same VRAM/RAM as the llama.cpp services: never both at once.  Starting one stops the other.
+Conflicts=llama-server.service kallilex-server.service
+
+[Service]
+Type=simple
+User=lukas
+Group=lukas
+WorkingDirectory=/home/lukas/code/Strata
+Environment=HOME=/home/lukas
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/lukas/code/Strata/.venv/bin/python /home/lukas/code/Strata/serve/server.py --engine strata --config /home/lukas/code/Strata/deploy/aegis/strata-aegis.json --port 8012
+# the RAM copy of the experts is page-locked (mlock); the default 8 MiB limit stops it
+LimitMEMLOCK=infinity
+# SIGTERM takes the server's Ctrl+C path (QUIT to the engine); what is left after 90 s is killed
+KillMode=mixed
+TimeoutStopSec=90
+Restart=on-failure
+RestartSec=15
+# never MemoryHigh here: it counts the page cache (docs/AMD_HIP.md)
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,94 @@
+{
+ "exe": "/home/lukas/code/Strata/engine/strata",
+ "args": [
+  "--pack",
+  "/home/lukas/strata-data/packs/coder-iq1_m",
+  "--native",
+  "/home/lukas/strata-data/models/coder-IQ1_M/Qwen3.8-Flash-Next-GSQ-RCO-IQ1_M-00001-of-00002.gguf",
+  "--ple-gguf",
+  "/home/lukas/strata-data/models/coder-IQ1_M/Qwen3.8-Flash-Next-GSQ-RCO-IQ1_M-00002-of-00002.gguf",
+  "--expert-profile",
+  "/home/lukas/code/Strata/data/expert-profile-coder.bin",
+  "--expert-cache",
+  "auto",
+  "--spec",
+  "4",
+  "--spec-min-p",
+  "0.5",
+  "--mtp",
+  "/home/lukas/strata-data/mtp/rt",
+  "--kv",
+  "int8",
+  "--resident-budget-gib",
+  "6",
+  "--prefill",
+  "2048",
+  "--max-context",
+  "131072",
+  "--vram-reserve-mib",
+  "1280",
+  "--vram-reserve-later-mib",
+  "1408"
+ ],
+ "cwd": "/home/lukas/code/Strata",
+ "tokenizer": "/home/lukas/strata-data/packs/coder-iq1_m/tokenizer",
+ "model_name": "qwen3.8-flash-next-coder-iq1_m",
+ "log": "/home/lukas/code/Strata/strata-coder-iq1_m.log",
+ "lib_dirs": [
+  "/home/lukas/opt/rocblas-7.1.0-gfx1012-gfx1200-merged/lib"
+ ],
+ "port": 8012,
+ "backend": "hip",
+ "gpu": [
+  0,
+  1
+ ],
+ "gpus_asked": true,
+ "layer_split": "auto",
+ "gpu_order": "as_given",
+ "gpu_roles": {
+  "0": "helper",
+  "1": "main"
+ },
+ "user_args": [
+  "--vram-reserve-mib",
+  "1024"
+ ],
+ "args_written": [
+  "--pack",
+  "/home/lukas/strata-data/packs/coder-iq1_m",
+  "--native",
+  "/home/lukas/strata-data/models/coder-IQ1_M/Qwen3.8-Flash-Next-GSQ-RCO-IQ1_M-00001-of-00002.gguf",
+  "--ple-gguf",
+  "/home/lukas/strata-data/models/coder-IQ1_M/Qwen3.8-Flash-Next-GSQ-RCO-IQ1_M-00002-of-00002.gguf",
+  "--expert-profile",
+  "/home/lukas/code/Strata/data/expert-profile-coder.bin",
+  "--expert-cache",
+  "auto",
+  "--prefill",
+  "auto",
+  "--spec",
+  "4",
+  "--spec-min-p",
+  "0.5",
+  "--mtp",
+  "/home/lukas/strata-data/mtp/rt",
+  "--max-context",
+  "32768",
+  "--kv",
+  "int8",
+  "--mmap-experts",
+  "--vram-reserve-mib",
+  "1024"
+ ],
+ "env": {
+  "STRATA_PF_FUSED": "0",
+  "STRATA_UNBUFFERED_LOAD": "1"
+ },
+ "host": "0.0.0.0",
+ "api_key": "none",
+ "allowed_hosts": [
+  "aegis",
+  "aegis.local"
+ ]
+}
