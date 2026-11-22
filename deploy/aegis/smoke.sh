@@ -10,7 +10,7 @@ PORT=${PORT:-8012}; LOAD_TIMEOUT=${LOAD_TIMEOUT:-1200}
 cp "$CFG" "$OUT/config.json"
 journalctl -k --since now -f --no-pager > "$OUT/kernel.log" 2>/dev/null & JPID=$!
 
-cd "$ROOT"
+cd "$ROOT/terminal"
 setsid .venv/bin/python serve/server.py --engine strata --config "$CFG" --port "$PORT" > "$OUT/server.log" 2>&1 < /dev/null &
 SRV=$!
 echo "server pid $SRV, config $CFG" | tee "$OUT/run.txt"
@@ -25,7 +25,7 @@ done
 echo "load: $(( $(date +%s) - t0 )) s, ok=${ok:-no}" | tee -a "$OUT/run.txt"
 
 if [[ -n "$ok" ]]; then
-  .venv/bin/python deploy/aegis/smoke.py "http://127.0.0.1:$PORT" "$OUT" --long-file "$ROOT/serve/split.py" | tee -a "$OUT/run.txt"
+  .venv/bin/python "$ROOT/deploy/aegis/smoke.py" "http://127.0.0.1:$PORT" "$OUT" --long-file "$ROOT/terminal/serve/split.py" | tee -a "$OUT/run.txt"
 fi
 
 # stop: SIGTERM takes Ctrl+C's path (QUIT to the engine); kill -9 the tree if it hangs

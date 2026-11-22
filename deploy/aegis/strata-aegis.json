@@ -1,5 +1,5 @@
 {
- "exe": "/home/lukas/code/Strata/engine/strata",
+ "exe": "/home/lukas/code/Strata-0.2.18/terminal/engine/strata",
  "args": [
   "--pack",
   "/home/lukas/strata-data/packs/coder-iq1_m",
@@ -8,7 +8,7 @@
   "--ple-gguf",
   "/home/lukas/strata-data/models/coder-IQ1_M/Qwen3.8-Flash-Next-GSQ-RCO-IQ1_M-00002-of-00002.gguf",
   "--expert-profile",
-  "/home/lukas/code/Strata/data/expert-profile-coder.bin",
+  "/home/lukas/code/Strata-0.2.18/terminal/data/expert-profile-coder.bin",
   "--expert-cache",
   "auto",
   "--spec",
@@ -20,7 +20,7 @@
   "--kv",
   "int8",
   "--resident-budget-gib",
-  "6",
+  "4.5",
   "--prefill",
   "2048",
   "--max-context",
@@ -30,10 +30,10 @@
   "--vram-reserve-later-mib",
   "1408"
  ],
- "cwd": "/home/lukas/code/Strata",
+ "cwd": "/home/lukas/code/Strata-0.2.18/terminal",
  "tokenizer": "/home/lukas/strata-data/packs/coder-iq1_m/tokenizer",
  "model_name": "qwen3.8-flash-next-coder-iq1_m",
- "log": "/home/lukas/code/Strata/strata-coder-iq1_m.log",
+ "log": "/home/lukas/code/Strata-0.2.18/terminal/strata-coder-iq1_m.log",
  "lib_dirs": [
   "/home/lukas/opt/rocblas-7.1.0-gfx1012-gfx1200-merged/lib"
  ],
@@ -62,7 +62,7 @@
   "--ple-gguf",
   "/home/lukas/strata-data/models/coder-IQ1_M/Qwen3.8-Flash-Next-GSQ-RCO-IQ1_M-00002-of-00002.gguf",
   "--expert-profile",
-  "/home/lukas/code/Strata/data/expert-profile-coder.bin",
+  "/home/lukas/code/Strata-0.2.18/terminal/data/expert-profile-coder.bin",
   "--expert-cache",
   "auto",
   "--prefill",
@@ -83,7 +83,8 @@
  ],
  "env": {
   "STRATA_PF_FUSED": "0",
-  "STRATA_UNBUFFERED_LOAD": "1"
+  "STRATA_UNBUFFERED_LOAD": "1",
+  "STRATA_ROUTE_TAIL_SKIP": "7"
  },
  "host": "0.0.0.0",
  "api_key": "none",

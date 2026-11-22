@@ -15,10 +15,10 @@ Conflicts=llama-server.service kallilex-server.service
 Type=simple
 User=lukas
 Group=lukas
-WorkingDirectory=/home/lukas/code/Strata
+WorkingDirectory=/home/lukas/code/Strata-0.2.18/terminal
 Environment=HOME=/home/lukas
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/home/lukas/code/Strata/.venv/bin/python /home/lukas/code/Strata/serve/server.py --engine strata --config /home/lukas/code/Strata/deploy/aegis/strata-aegis.json --port 8012
+ExecStart=/home/lukas/code/Strata-0.2.18/terminal/.venv/bin/python /home/lukas/code/Strata-0.2.18/terminal/serve/server.py --engine strata --config /home/lukas/code/Strata-0.2.18/deploy/aegis/strata-aegis.json --port 8012
 # the RAM copy of the experts is page-locked (mlock); the default 8 MiB limit stops it
 LimitMEMLOCK=infinity
 # SIGTERM takes the server's Ctrl+C path (QUIT to the engine); what is left after 90 s is killed

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Build the Strata HIP engine for aegis: RX 5500 XT (gfx1012) + RX 9060 XT (gfx1200), Ubuntu's ROCm 7.1 under /usr.
 #
-# Same switches as setup.py build_engine_hip(), but by hand: setup does not build gfx1012 (docs/OLDER_GPUS.md) and its
+# 0.2.16+ layout: engine sources in engine/, setup/server in terminal/ (setup's ROOT); the engine goes to terminal/engine/.
+# Same switches as terminal/setup.py build_engine_hip(), but by hand: setup does not build gfx1012 (docs/OLDER_GPUS.md) and its
 # rocm_root() expects /opt/rocm.  The engine is copied to engine/strata with a BUILD.json that setup.py accepts as
 # "engine already built for this PC" (same source hash, backend hip, both archs), plus lib_dirs pointing at the rocBLAS
 # with gfx1012 kernels (deploy/aegis/build-rocblas.sh).
@@ -12,21 +13,22 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-cd "$ROOT"
+TERM_DIR="$ROOT/terminal"
+cd "$TERM_DIR"
 JOBS="${JOBS:-8}"
 ARCHS="${ARCHS:-gfx1012;gfx1200}"
 ROCBLAS_PREFIX="${ROCBLAS_PREFIX:-$HOME/opt/rocblas-7.1.0-gfx1012-gfx1200-merged}"   # merged: see build-rocblas.sh MERGED
-BUILD="$ROOT/build-hip"
-PY="$ROOT/.venv/bin/python"
+BUILD="$TERM_DIR/build-hip"
+PY="$TERM_DIR/.venv/bin/python"
 
 [[ -f "$ROCBLAS_PREFIX/lib/librocblas.so.5" ]] || { echo "rocBLAS with gfx1012 missing: $ROCBLAS_PREFIX (run build-rocblas.sh)" >&2; exit 1; }
-[[ -x "$PY" ]] || { echo "no .venv: python3 -m venv .venv && .venv/bin/pip install -r requirements.txt" >&2; exit 1; }
+[[ -x "$PY" ]] || { echo "no terminal/.venv: cd terminal && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt" >&2; exit 1; }
 
-cmake -S . -B "$BUILD" -G Ninja \
+cmake -S "$ROOT/engine" -B "$BUILD" -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
   -DSTRATA_ENABLE_HIP=ON -DSTRATA_ENABLE_CUDA=OFF \
   -DSTRATA_BUILD_TESTS="$([[ ${SKIP_TESTS:-0} == 1 ]] && echo OFF || echo ON)" \
-  -DSTRATA_PREFILL_MMQ=ON -DSTRATA_Q6K_EXPERTS=ON -DSTRATA_MMQ_KQUANTS=ON \
+  -DSTRATA_Q6K_EXPERTS=ON \
   -DCMAKE_HIP_ARCHITECTURES="$ARCHS" \
   -DCMAKE_HIP_COMPILER=/usr/bin/clang++ \
   -DCMAKE_PREFIX_PATH=/usr
@@ -61,4 +63,4 @@ EOF
   echo "built $(date -Is) on $(hostname), $(/usr/bin/clang++ --version | head -1)"
   echo "rocBLAS: $ROCBLAS_PREFIX"
 } > engine/BUILD-INFO.txt
-echo "engine: $ROOT/engine/strata"
+echo "engine: $TERM_DIR/engine/strata"

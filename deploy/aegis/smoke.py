@@ -44,7 +44,7 @@ def main():
         reqs.append(("long16", f"Here is a source file:\n\n```\n{big}\n```\n\nList the five most important functions and what each does.", 300))
     deep_tokens = int(os.environ.get("SMOKE_DEEP_TOKENS", "0"))          # opt-in: a long-context needle test
     if deep_tokens:
-        hay = (Path(__file__).resolve().parents[2] / "serve" / "server.py").read_text(errors="replace")
+        hay = (Path(__file__).resolve().parents[2] / "terminal" / "serve" / "server.py").read_text(errors="replace")
         hay = hay[:int(deep_tokens * 3.5)]                              # ~3.5 characters per token of Python
         cut = hay.rfind("\n", 0, int(len(hay) * 0.4)) + 1               # the needle at ~40% of the prompt
         hay = hay[:cut] + "# NOTE: the deploy codename for this server is BLUE-HERON-7342.\n" + hay[cut:]

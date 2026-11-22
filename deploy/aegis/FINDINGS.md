@@ -181,3 +181,20 @@ KV-Streaming (`--kv-resident`) bräuchte RAM, der fehlt. Needle: `SMOKE_DEEP_TOK
 - Stresstest der Dienst-Config (`strata-aegis.json`: rb6, Direct-I/O, Reserven 1280/1408) mit 128K: 2 Runden × (chat, code, long, long16, deep) mit frischen Prompts, **10/10**,
   beide Needles gefunden (pp 309 / 336, tg 20). chat 24–26, code 21–22, long pp 186–193, long16 pp 254–255 tok/s.
   Peak frei 1121 / 1311 MiB, MemAvailable min. 1,41 GB, Swap 129 MB, keine Kernel-Meldungen.
+
+## 2026-11-22: Update auf Upstream 0.2.18 (Engine 0.1.64, eigener Engine-Code ohne ggml/llama.cpp-Kernel)
+Gleiche Dienst-Config (128K int8, Direct-I/O, Reserven 1280/1408), Smoke `chat,code,long,long16` × 2 mit frischen Prompts,
+alte und neue Engine direkt nacheinander am selben Tag. tok/s, Mittel aus 2 Läufen.
+
+| Engine / Config | chat tg | code tg | long pp / tg | long16 pp / tg | Peak frei 5500 / 9060 | MemAvailable min |
+|---|---|---|---|---|---|---|
+| alt (Stand 11-11), rb6 | 24,7 | 20,4 | 190 / 17,3 | 233 / 24,7 | 1123 / 1315 MiB | 1,19 GB |
+| 0.2.18, rb6, Standard | 22,5 | 17,4 | 188 / 14,7 | 238 / 21,5 | 1379 / 1550 MiB | 0,81 GB |
+| 0.2.18, rb6, `STRATA_ROUTE_TAIL_SKIP=7` | 25,9 | 22,3 | 186 / 17,8 | 236 / 24,8 | 1379 / 1550 MiB | 0,92 GB |
+| **0.2.18, rb 4.5, RTS 7 (gewählt)** | 24,5 | 19,9 | 172 / 18,0 | 219 / 23,3 | 1381 / 1551 MiB | 2,46 GB |
+
+- 88K-Needle (`SMOKE_DEEP_TOKENS=88000`, 75.327 Tokens): mit rb6 Abbruch durch den Watchdog (MemAvailable 398 MiB, sinkt
+  im Prompt stetig); mit **rb 4.5 gefunden** (`BLUE-HERON-7342`), pp 233 / tg 20,8, MemAvailable min. 2,04 GB.
+- Die Engine kürzt rb6 ohnehin auf 5,38 GiB ("exceeds available RAM ... minus 4 GiB headroom").
+- Laden 30–34 s, keine Hänger, keine Kernel-Meldungen.
+

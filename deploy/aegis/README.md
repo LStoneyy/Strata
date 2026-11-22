@@ -9,7 +9,7 @@ Messungen und Befunde: [FINDINGS.md](FINDINGS.md).
 | Ebene | Inhalt |
 |---|---|
 | VRAM | Layer 0–14 auf der 5500, Layer 15–47 + Head + MTP-Draft auf der 9060; Experten-Cache ~5 + ~9,6 GiB |
-| RAM | `--resident-budget-gib 6`: die heißesten Experten, die keine Karte hält, page-locked |
+| RAM | `--resident-budget-gib 4.5`: die heißesten Experten, die keine Karte hält, page-locked (bis 0.2.13: 6) |
 | SSD | Rest der Experten (`packs/coder-iq1_m/experts.bin`, Direct-I/O) + n-gram-Tabelle (Shard 2, `--ple-io direct`) |
 
 Ergebnis (2026-11-11, frische Prompts, **128K Kontext**, int8-KV): chat/code ~22–26 tok/s, 4K-Prompt ~190 tok/s,
@@ -37,6 +37,8 @@ Karte, GTT unverändert, MemAvailable ≥ 1,4 GB.
 | `STRATA_PF_FUSED=0` | der fusionierte int8-Prompt-Kernel (gfx12-Default) hängt hier im Prompt |
 | `--max-context 131072`, `--kv int8` | Entscheidung 2026-11-11: 128K mit int8 statt 256K mit q4_0 (Genauigkeit). KV ~13,7 KB/Token (1,8 GB) geht vom Experten-Cache ab; 256K int8 kostet 20 % der Slots ([FINDINGS.md](FINDINGS.md)) |
 | `--prefill 2048` | kleinere Prompt-Chunks: weniger SSD-Reads und schneller (Engine-Empfehlung 2048–2816) |
+| `STRATA_ROUTE_TAIL_SKIP=7` (ab 0.2.17) | 0.2.17 stellt den Route-Tail-Skip auf RX 9000 standardmäßig ab; ohne ihn ist tg hier 10–15 % langsamer. 7 ist das bisherige Verhalten (Antworten können minimal von „aus“ abweichen) |
+| `--resident-budget-gib 4.5` (ab 0.2.18) | mit 6 GiB fiel MemAvailable im 75K-Prompt auf 398 MiB (Watchdog-Abbruch); mit 4,5 bleiben ≥ 2 GB |
 | `--vram-reserve-mib 1280`, `--vram-reserve-later-mib 1408` | ≥ 1 GiB VRAM pro Karte frei auch im Prompt-Peak |
 | `--gpu-roles 1=main,0=helper` (`"gpu": [0,1]`) | HIP-Gerät 1 = 9060 (Main), 0 = 5500; Setup schaltet 8-GB-Karten sonst aus |
 | `STRATA_EXPERIMENTAL_GFX1012=1` (nur für `setup.py`) | Fork-Patch: Setup akzeptiert die 5500 als Karte |
@@ -50,7 +52,7 @@ Karte, GTT unverändert, MemAvailable ≥ 1,4 GB.
 # Dienst
 sudo systemctl status strata
 journalctl -u strata -f                       # Server-Log
-tail -f ~/code/Strata/strata-coder-iq1_m.log  # Engine-Log
+tail -f ~/code/Strata-0.2.18/terminal/strata-coder-iq1_m.log  # Engine-Log (ab 0.2.16: unter terminal/)
 
 # Umschalten auf llama.cpp und zurück (Conflicts= stoppt jeweils den anderen)
 sudo systemctl disable --now strata && sudo systemctl enable --now llama-server kallilex-server
@@ -69,8 +71,16 @@ Conversation-Cache.
 
 ## Engine-Update (Upstream)
 
+Ab 0.2.16 liegen Setup, Server, `.venv` und die gebaute Engine unter `terminal/`, die Engine-Quellen unter `engine/`.
+`build-engine.sh`, `smoke.sh` und `smoke.py` sind darauf umgestellt. Auf aegis startet Aitheris (`/etc/aitheris/config.yaml`,
+Backend `strata`) `terminal/serve/server.py` mit dieser Run-Config.
+
 ```sh
-git fetch upstream && git merge upstream/main     # auf dem Mac, dann auf aegis pullen
-deploy/aegis/build-engine.sh                      # baut neu, ctest, schreibt engine/BUILD.json
-# Smoke wie oben, dann: sudo systemctl restart strata
+git fetch upstream --tags && git worktree add -b aegis-<ver> ~/code/Strata-<ver> v<ver>   # neuer Checkout neben dem alten
+git cherry-pick <aegis-Commits>                    # Konflikt meist nur in terminal/setup.py (AMD_ARCHS)
+cd terminal && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt && cd ..
+SKIP_TESTS=1 deploy/aegis/build-engine.sh          # baut terminal/build-hip, schreibt terminal/engine/BUILD.json
+# Smoke (chat,code,long,long16 + deep), dann Pfade in der Aitheris-Config umstellen und aitheris neu starten
 ```
+
+Update 2026-11-22 auf 0.2.18 (Engine 0.1.64): siehe [FINDINGS.md](FINDINGS.md), letzter Abschnitt.
